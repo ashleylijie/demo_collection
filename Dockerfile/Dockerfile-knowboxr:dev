@@ -1,0 +1,56 @@
+FROM rocker/r-ver:3.5.3
+
+# set up necessary dependencies
+RUN apt-get update -qq && apt-get -y --no-install-recommends install \
+  libxml2-dev \
+  libcairo2-dev \
+  libsqlite-dev \
+  libmariadbd-dev \
+  libmariadb-client-lgpl-dev \
+  libpq-dev \
+  libssh2-1-dev \
+  git-core \
+  libssl-dev \
+  libcurl4-gnutls-dev \
+  # for DBI
+  libjpeg62-turbo-dev \
+  # for mongolite
+  libsasl2-dev \
+  curl 
+
+# install common R packages
+RUN install2.r --error \
+    -r "https://mirrors.tuna.tsinghua.edu.cn/CRAN/" \
+    --deps TRUE \
+    tidyverse \
+    dplyr \
+    devtools \
+    formatR \
+    remotes \
+    selectr \
+    DBI \
+    RMariaDB \
+    RPostgreSQL \
+    mongolite \
+    httr \
+    base64enc \
+    cli \
+    plumber \
+    jsonlite \
+    lubridate \
+    processx \
+    rlang
+
+# working directory
+WORKDIR /app
+
+# install 'knowboxr' from github
+RUN Rscript -e 'devtools::install_github("tmasjc/knowboxr", ref = "development")'
+
+# set timezone to China/Shanghai
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone
+
+# on boot-up
+CMD ["R"]

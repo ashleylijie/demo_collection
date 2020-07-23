@@ -1,0 +1,30 @@
+
+FROM rocker/r-ver:3.6.1
+
+RUN apt-get update -qq && apt-get -y --no-install-recommends install \
+  libxml2-dev \
+  libcairo2-dev \
+  libpq-dev \
+  libssh2-1-dev \
+  git-core \
+  libssl-dev \
+  libcurl4-gnutls-dev
+ 
+# install common R packages
+RUN install2.r --error \
+    -r "https://mirrors.tuna.tsinghua.edu.cn/CRAN/" \
+    tidyverse \
+    dplyr \
+    devtools \
+    formatR \
+    remotes \
+    selectr \
+    shiny \
+    config \
+    scales
+
+# Set timezone
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+
